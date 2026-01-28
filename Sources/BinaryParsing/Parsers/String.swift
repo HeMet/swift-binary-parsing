@@ -9,6 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import FoundationEssentials
+
 extension String {
   /// Parses a nul-terminated UTF-8 string from the start of the given parser.
   ///
@@ -102,5 +104,26 @@ extension String {
     var slice = try input._divide(
       atByteOffset: codeUnitCount.multipliedThrowingOnOverflow(by: 2))
     unsafe try self.init(_uncheckedParsingUTF16: &slice)
+  }
+
+  @inlinable
+  public init?(parsingASCII input: inout ParserSpan, count: Int, encoding: String.Encoding)
+    throws(ParsingError)
+  {
+    var slice = try input._divide(atByteOffset: count)
+    self.init(parsingASCII: &slice, encoding: encoding)
+  }
+
+  @inlinable
+  public init?(parsingASCII input: inout ParserSpan, encoding: String.Encoding) {
+    let stringBytes = input.divide(at: input.endPosition)
+    let value = unsafe stringBytes.withUnsafeBytes { buffer in
+      unsafe String(bytes: buffer, encoding: encoding)
+    }
+    if let value {
+      self = value
+    } else {
+      return nil
+    }
   }
 }

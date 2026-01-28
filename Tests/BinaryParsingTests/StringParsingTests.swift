@@ -11,6 +11,7 @@
 
 import BinaryParsing
 import Testing
+import FoundationEssentials
 
 struct StringParsingTests {
   // Test data
@@ -21,6 +22,7 @@ struct StringParsingTests {
   private let invalidBuffer: [UInt8] = [0xD8, 0x00]
   private let emptyBuffer: [UInt8] = []
   private let nulOnlyBuffer: [UInt8] = [0]
+  private let cyrillicASCIIBuffer: [UInt8] = [0xD1, 0xE2, 0xE8, 0xF4, 0xF2]
 
   @Test
   func parseNulTerminated() throws {
@@ -209,6 +211,14 @@ struct StringParsingTests {
       #expect(throws: ParsingError.self) {
         _ = try String(parsingUTF16: &span, codeUnitCount: codeUnitCount)
       }
+    }
+  }
+
+  @Test
+  func parseASCIIWithCount() throws {
+    try cyrillicASCIIBuffer.withParserSpan { span in
+      let str = try String(parsingASCII: &span, count: 5, encoding: .windowsCP1251)
+      #expect(str == "Свифт")
     }
   }
 
