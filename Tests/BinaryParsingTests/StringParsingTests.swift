@@ -9,9 +9,14 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
+
 import BinaryParsing
 import Testing
-import FoundationEssentials
 
 struct StringParsingTests {
   // Test data
