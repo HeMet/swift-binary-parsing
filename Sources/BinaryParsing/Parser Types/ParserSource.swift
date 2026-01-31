@@ -185,3 +185,18 @@ extension ArraySlice<UInt8>: ParserSpanProvider {
     }
   }
 }
+
+extension ContiguousArray<UInt8>: ParserSpanProvider {
+  public func withParserSpan<T, E>(
+    _ body: (inout ParserSpan) throws(E) -> T
+  ) throws(E) -> T {
+    let result = unsafe self.withUnsafeBytes { rawBuffer in
+      var span = unsafe ParserSpan(_unsafeBytes: rawBuffer)
+      return Result<T, E> { () throws(E) in try body(&span) }
+    }
+    switch result {
+    case .success(let t): return t
+    case .failure(let e): throw e
+    }
+  }
+}
